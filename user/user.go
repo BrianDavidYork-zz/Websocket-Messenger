@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/golang/glog"
+	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"strings"
@@ -22,11 +23,14 @@ func Create(res http.ResponseWriter, req *http.Request) {
 		Password string
 	}
 
+	r := Response{}
 	u := CreateUser{}
 
 	err := json.NewDecoder(req.Body).Decode(&u)
 	if err != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
+		r.Message = "Error"
+		res.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(res).Encode(r)
 		return
 	}
 
@@ -46,7 +50,6 @@ func Create(res http.ResponseWriter, req *http.Request) {
 
 	token, err := newUser.CreateUser(req.Context())
 
-	r := Response{}
 	r.Message = "User Created"
 	res.WriteHeader(http.StatusOK)
 	res.Header().Set("Authorization", "Bearer"+token)
@@ -55,32 +58,69 @@ func Create(res http.ResponseWriter, req *http.Request) {
 
 func Login(res http.ResponseWriter, req *http.Request) {
 	l := db.Login{}
+	r := Response{}
 
 	err := json.NewDecoder(req.Body).Decode(&l)
 	if err != nil {
-		http.Error(res, err.Error(), http.StatusBadRequest)
+		r.Message = "Error"
+		res.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(res).Encode(r)
 		return
 	}
 
 	token, err := db.LoginUser(req.Context(), l)
 
-	r := Response{}
 	r.Message = "User Created"
+	r.Data = token
 	res.WriteHeader(http.StatusOK)
-	res.Header().Set("Authorization", "Bearer"+token)
 	json.NewEncoder(res).Encode(r)
 }
 
 func Logout(res http.ResponseWriter, req *http.Request) {
+	r := Response{}
+
 	username, err := jwtAuthorize(req)
 	if err != nil {
 		glog.Info(err)
+		r.Message = "Error"
+		res.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(res).Encode(r)
+		return
 	}
 
 	err = db.Logout(req.Context(), username)
 
-	r := Response{}
 	r.Message = "Logged out"
+	res.WriteHeader(http.StatusOK)
+	json.NewEncoder(res).Encode(r)
+}
+
+func Profile(res http.ResponseWriter, req *http.Request) {
+	r := Response{}
+
+	username, err := jwtAuthorize(req)
+	if err != nil {
+		glog.Info(err)
+		r.Message = "Error"
+		res.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+	glog.Info(username)
+	u := mux.Vars(req)
+	glog.Info(u["username"])
+
+	profile, err := db.GetProfile(req.Context(), u["username"])
+	if err != nil {
+		glog.Info(err)
+		r.Message = "Error"
+		res.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	r.Message = "Profile Retrieved"
+	r.Data = profile
 	res.WriteHeader(http.StatusOK)
 	json.NewEncoder(res).Encode(r)
 }

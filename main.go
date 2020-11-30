@@ -19,8 +19,7 @@ func main() {
 
 	// user
 	router.HandleFunc("/user", user.Create).Methods("POST")
-	//router.HandleFunc("/user", user.Edit).Methods("PUT")
-	//router.HandleFunc("/user/{id}", user.Profile).Methods("GET")
+	router.HandleFunc("/user/{username}", user.Profile).Methods("GET")
 	router.HandleFunc("/user/login", user.Login).Methods("POST")
 	router.HandleFunc("/user/logout", user.Logout).Methods("POST")
 
@@ -50,8 +49,6 @@ func main() {
 
 // TODO
 
-// responses - make sure all responses have message, statusCode, data (if applicable)
 // jwt authorization - turn into middleware
-// edit user (add other fields?)
 // user profile
 // env variables - jwt secret, mongo url, api port

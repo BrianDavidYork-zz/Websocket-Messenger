@@ -11,6 +11,11 @@ import (
 	"time"
 )
 
+type Response struct {
+	Message string
+	Data    interface{}
+}
+
 func Create(res http.ResponseWriter, req *http.Request) {
 	type CreateUser struct {
 		Username string
@@ -24,8 +29,6 @@ func Create(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, err.Error(), http.StatusBadRequest)
 		return
 	}
-	glog.Info(u.Username)
-	glog.Info(u.Password)
 
 	var newUser db.User
 
@@ -39,14 +42,15 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	newUser.Created = now
 	newUser.LastOnline = now
 
-	// generate and save jwt
-
 	newUser.LoggedOn = true
 
 	token, err := newUser.CreateUser(req.Context())
 
-	// send back res
+	r := Response{}
+	r.Message = "User Created"
+	res.WriteHeader(http.StatusOK)
 	res.Header().Set("Authorization", "Bearer"+token)
+	json.NewEncoder(res).Encode(r)
 }
 
 func Login(res http.ResponseWriter, req *http.Request) {
@@ -60,11 +64,25 @@ func Login(res http.ResponseWriter, req *http.Request) {
 
 	token, err := db.LoginUser(req.Context(), l)
 
-	res.Header().Set("Authorization", "Bearer "+token)
+	r := Response{}
+	r.Message = "User Created"
+	res.WriteHeader(http.StatusOK)
+	res.Header().Set("Authorization", "Bearer"+token)
+	json.NewEncoder(res).Encode(r)
 }
 
 func Logout(res http.ResponseWriter, req *http.Request) {
-	username, _ := jwtAuthorize(req)
+	username, err := jwtAuthorize(req)
+	if err != nil {
+		glog.Info(err)
+	}
+
+	err = db.Logout(req.Context(), username)
+
+	r := Response{}
+	r.Message = "Logged out"
+	res.WriteHeader(http.StatusOK)
+	json.NewEncoder(res).Encode(r)
 }
 
 func jwtAuthorize(req *http.Request) (username string, err error) {

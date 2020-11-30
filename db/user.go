@@ -44,7 +44,6 @@ func LoginUser(context context.Context, l Login) (token string, err error) {
 		return
 	}
 
-	// compare password
 	err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(l.Password))
 	if err != nil {
 		glog.Error(err)
@@ -60,6 +59,18 @@ func LoginUser(context context.Context, l Login) (token string, err error) {
 	_, err = db.Collection("users").UpdateOne(context,
 		bson.M{"username": u.Username},
 		bson.M{"$set": bson.M{"jwt": token, "loggedon": true, "lastonline": time.Now().Unix()}})
+	if err != nil {
+		glog.Error(err)
+		return
+	}
+	return
+}
+
+func Logout(context context.Context, username string) (err error) {
+	glog.Info(username)
+	_, err = db.Collection("users").UpdateOne(context,
+		bson.M{"username": username},
+		bson.M{"$set": bson.M{"jwt": "", "loggedon": false, "lastonline": time.Now().Unix()}})
 	if err != nil {
 		glog.Error(err)
 		return

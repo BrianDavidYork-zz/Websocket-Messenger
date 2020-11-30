@@ -50,9 +50,8 @@ func main() {
 
 // TODO
 
-// responses
+// responses - make sure all responses have message, statusCode, data (if applicable)
 // jwt authorization - turn into middleware
-// logout
 // edit user (add other fields?)
 // user profile
 // env variables - jwt secret, mongo url, api port

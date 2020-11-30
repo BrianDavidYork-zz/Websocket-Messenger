@@ -3,6 +3,7 @@ package main
 import (
 	"./db"
 	"./user"
+	"./websocket"
 	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -24,17 +25,17 @@ func main() {
 	router.HandleFunc("/user/logout", user.Logout).Methods("POST")
 
 	// websocket
-	//router.HandleFunc("/websocket", websocket.Create).Methods("POST")
+	router.HandleFunc("/websocket", websocket.Create).Methods("POST")
 
 	// conversation
 	//router.HandleFunc("/conversation", conversation.Create).Methods("POST")
-	//router.HandleFunc("/conversation/{id}", conversation.GetAllConversations).Methods("GET")
+	//router.HandleFunc("/conversation", conversation.GetAllConversations).Methods("GET")
 
 	// messages
 	//router.HandleFunc("/message", message.Create).Methods("POST")
 	//router.HandleFunc("/message", message.Edit).Methods("PUT")
-	//router.HandleFunc("/message", message.Delete).Methods("DELETE")
-	//router.HandleFunc("/message/{id}", message.GetMessages).Methods("GET")
+	//router.HandleFunc("/message/{id}", message.Delete).Methods("DELETE")
+	//router.HandleFunc("/message", message.GetMessages).Methods("GET")
 
 	// start server
 	glog.Info("Starting messenger api on port 7000")
@@ -50,5 +51,5 @@ func main() {
 // TODO
 
 // jwt authorization - turn into middleware
-// user profile
 // env variables - jwt secret, mongo url, api port
+// log errors

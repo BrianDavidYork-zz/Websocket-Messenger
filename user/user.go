@@ -3,9 +3,11 @@ package user
 import (
 	"../db"
 	"encoding/json"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/golang/glog"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -62,5 +64,30 @@ func Login(res http.ResponseWriter, req *http.Request) {
 }
 
 func Logout(res http.ResponseWriter, req *http.Request) {
+	username, _ := jwtAuthorize(req)
+}
 
+func jwtAuthorize(req *http.Request) (username string, err error) {
+	var bearerToken string
+	tok := req.Header.Get("Authorization")
+	strArr := strings.Split(tok, " ")
+	if len(strArr) == 2 {
+		bearerToken = strArr[1]
+	}
+	token, err := jwt.Parse(bearerToken, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			glog.Error(err)
+		}
+		return []byte("WaterCooler123"), nil
+	})
+	if err != nil {
+		glog.Error(err)
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		glog.Error(err)
+		return
+	}
+	username = claims["username"].(string)
+	return
 }

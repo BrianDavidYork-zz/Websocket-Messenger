@@ -51,7 +51,8 @@ func main() {
 // TODO
 
 // responses
-// jwt  -- test
+// jwt authorization - turn into middleware
 // logout
 // edit user (add other fields?)
 // user profile
+// env variables - jwt secret, mongo url, api port

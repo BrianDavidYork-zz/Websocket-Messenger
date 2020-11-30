@@ -45,3 +45,19 @@ func Create(res http.ResponseWriter, req *http.Request) {
 
 	// send back res
 }
+
+func Login(res http.ResponseWriter, req *http.Request) {
+	l := db.Login{}
+
+	err := json.NewDecoder(req.Body).Decode(&l)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	_, err = db.LoginUser(req.Context(), l)
+}
+
+func Logout(res http.ResponseWriter, req *http.Request) {
+
+}

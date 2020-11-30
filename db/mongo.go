@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"github.com/golang/glog"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -27,6 +28,16 @@ func StartMongo() {
 	}
 
 	db = client.Database("Messenger")
+
+	// unique username index
+	_, err = db.Collection("users").Indexes().CreateOne(context.Background(), mongo.IndexModel{
+		Keys:    bson.M{"username": 1},
+		Options: options.Index().SetUnique(true),
+	})
+	if err != nil {
+		glog.Info(err)
+		panic(err)
+	}
 
 	glog.Info("MongoDb started")
 }

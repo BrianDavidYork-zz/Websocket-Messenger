@@ -41,7 +41,7 @@ func Create(res http.ResponseWriter, req *http.Request) {
 
 	newUser.LoggedOn = true
 
-	err = newUser.CreateUser(req.Context())
+	token, err := newUser.CreateUser(req.Context())
 
 	// send back res
 }
@@ -55,7 +55,7 @@ func Login(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	_, err = db.LoginUser(req.Context(), l)
+	token, err := db.LoginUser(req.Context(), l)
 }
 
 func Logout(res http.ResponseWriter, req *http.Request) {

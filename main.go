@@ -47,3 +47,11 @@ func main() {
 //func jwtMiddleware(req *http.Request) (err error) {
 //	header := req.Header.Get("Authorization")
 //}
+
+// TODO
+
+// responses
+// jwt  -- test
+// logout
+// edit user (add other fields?)
+// user profile

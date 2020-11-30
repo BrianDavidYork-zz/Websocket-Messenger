@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/golang/glog"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -24,7 +25,9 @@ type Login struct {
 	Password string
 }
 
-func (user *User) CreateUser(context context.Context) (err error) {
+func (user *User) CreateUser(context context.Context) (token string, err error) {
+	token, err = generateJwt(*user)
+	user.Jwt = token
 	_, err = db.Collection("users").InsertOne(context, user)
 	if err != nil {
 		glog.Error(err)
@@ -33,7 +36,7 @@ func (user *User) CreateUser(context context.Context) (err error) {
 	return
 }
 
-func LoginUser(context context.Context, l Login) (jwt string, err error) {
+func LoginUser(context context.Context, l Login) (token string, err error) {
 	u := User{}
 	err = db.Collection("users").FindOne(context, bson.M{"username": l.Username}).Decode(&u)
 	if err != nil {
@@ -47,10 +50,30 @@ func LoginUser(context context.Context, l Login) (jwt string, err error) {
 		glog.Error(err)
 		return
 	}
-	// generate jwt
-	jwt = "12345"
 
-	_, err = db.Collection("users").UpdateOne(context, bson.M{"username": u.Username}, bson.M{"$set": bson.M{"jwt": jwt, "loggedon": true, "lastonline": time.Now().Unix()}})
+	token, err = generateJwt(u)
+	if err != nil {
+		glog.Error(err)
+		return
+	}
+
+	_, err = db.Collection("users").UpdateOne(context,
+		bson.M{"username": u.Username},
+		bson.M{"$set": bson.M{"jwt": token, "loggedon": true, "lastonline": time.Now().Unix()}})
+	if err != nil {
+		glog.Error(err)
+		return
+	}
+	return
+}
+
+func generateJwt(u User) (token string, err error) {
+	claims := jwt.MapClaims{
+		"username": u.Username,
+		"exp":      time.Now().Add(time.Hour * 12),
+	}
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token, err = t.SignedString([]byte("WaterCooler123"))
 	if err != nil {
 		glog.Error(err)
 		return

@@ -44,6 +44,7 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	token, err := newUser.CreateUser(req.Context())
 
 	// send back res
+	res.Header().Set("Authorization", "Bearer"+token)
 }
 
 func Login(res http.ResponseWriter, req *http.Request) {
@@ -56,6 +57,8 @@ func Login(res http.ResponseWriter, req *http.Request) {
 	}
 
 	token, err := db.LoginUser(req.Context(), l)
+
+	res.Header().Set("Authorization", "Bearer "+token)
 }
 
 func Logout(res http.ResponseWriter, req *http.Request) {

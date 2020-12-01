@@ -25,7 +25,7 @@ func main() {
 	router.HandleFunc("/user/logout", user.Logout).Methods("POST")
 
 	// websocket
-	router.HandleFunc("/websocket", websocket.Create).Methods("POST")
+	router.HandleFunc("/websocket", websocket.Create).Methods("GET")
 
 	// conversation
 	//router.HandleFunc("/conversation", conversation.Create).Methods("POST")

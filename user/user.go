@@ -79,7 +79,7 @@ func Login(res http.ResponseWriter, req *http.Request) {
 func Logout(res http.ResponseWriter, req *http.Request) {
 	r := Response{}
 
-	username, err := jwtAuthorize(req)
+	username, err := JwtAuthorize(req)
 	if err != nil {
 		glog.Info(err)
 		r.Message = "Error"
@@ -98,7 +98,7 @@ func Logout(res http.ResponseWriter, req *http.Request) {
 func Profile(res http.ResponseWriter, req *http.Request) {
 	r := Response{}
 
-	username, err := jwtAuthorize(req)
+	username, err := JwtAuthorize(req)
 	if err != nil {
 		glog.Info(err)
 		r.Message = "Error"
@@ -125,7 +125,7 @@ func Profile(res http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(res).Encode(r)
 }
 
-func jwtAuthorize(req *http.Request) (username string, err error) {
+func JwtAuthorize(req *http.Request) (username string, err error) {
 	var bearerToken string
 	tok := req.Header.Get("Authorization")
 	strArr := strings.Split(tok, " ")

@@ -7,11 +7,15 @@ import (
 	"github.com/golang/glog"
 	"net"
 	"net/http"
+	"strings"
+	"sync"
 )
 
 var connectionTable = make(map[string]*net.Conn)
 
 func Create(res http.ResponseWriter, req *http.Request) {
+	m := sync.Mutex{}
+
 	// using github.com/gobwas/ws package and docs
 	conn, _, _, err := ws.UpgradeHTTP(req, res)
 	if err != nil {
@@ -25,12 +29,26 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	}
 
 	username, err := checkJwt(string(token))
+	// if jwt is not authorized, close websocket
 	if err != nil || username == "" {
 		conn.Close()
 	} else {
-		// if jwt is authorized
-		// save user and connection to table
+		// if jwt is authorized save user and connection to table
+		m.Lock()
 		connectionTable[username] = &conn
+		m.Unlock()
+		for {
+			// if websocket is closed, remove from map
+			_, _, err := wsutil.ReadClientData(conn)
+			if strings.Contains(err.Error(), "closed") {
+				_, ok := connectionTable[username]
+				if ok {
+					m.Lock()
+					delete(connectionTable, username)
+					m.Unlock()
+				}
+			}
+		}
 	}
 }
 

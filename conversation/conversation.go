@@ -57,6 +57,7 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(res).Encode(r)
 }
 
+/*
 func GetAllConversations(res http.ResponseWriter, req *http.Request) {
 	r := Response{}
 
@@ -69,7 +70,7 @@ func GetAllConversations(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	//conversations, err := db.GetConversations(req.Context(), username)
+	conversations, err := db.GetConversations(req.Context(), username)
 	if err != nil {
 		r.Message = "Error"
 		res.WriteHeader(http.StatusInternalServerError)
@@ -80,7 +81,8 @@ func GetAllConversations(res http.ResponseWriter, req *http.Request) {
 	// send ws notification to recipient
 
 	r.Message = "Conversations Retrieved"
-	//r.Data = conversations
+	r.Data = conversations
 	res.WriteHeader(http.StatusOK)
 	json.NewEncoder(res).Encode(r)
 }
+*/

@@ -17,13 +17,11 @@ func (conv *Conversation) Create(context context.Context, sender string, recipie
 	NewMessageMap[sender] = false
 	NewMessageMap[recipient] = false
 	conv.NewMessage = NewMessageMap
-	result, err := db.Collection("users").InsertOne(context, conv)
+	result, err := db.Collection("conversations").InsertOne(context, conv)
 	if err != nil {
 		glog.Error(err)
 		return
 	}
-	glog.Info(result)
-	glog.Info(result.InsertedID)
-	// cid = result.InsertedID
+	cid = result.InsertedID.(primitive.ObjectID)
 	return
 }

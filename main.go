@@ -5,10 +5,16 @@ import (
 	"WebsocketMessenger/db"
 	"WebsocketMessenger/user"
 	"WebsocketMessenger/websocket"
+	"flag"
 	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"net/http"
 )
+
+func init() {
+	flag.Set("logtostderr", "true")
+	flag.Parse()
+}
 
 func main() {
 	// consider using env variables
@@ -30,7 +36,7 @@ func main() {
 
 	// conversation
 	router.HandleFunc("/conversation", conversation.Create).Methods("POST")
-	router.HandleFunc("/conversation", conversation.GetAllConversations).Methods("GET")
+	//router.HandleFunc("/conversation", conversation.GetAllConversations).Methods("GET")
 
 	// message
 	//router.HandleFunc("/message", message.Create).Methods("POST")

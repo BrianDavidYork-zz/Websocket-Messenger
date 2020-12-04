@@ -1,7 +1,7 @@
 package user
 
 import (
-	"../db"
+	"WebsocketMessenger/db"
 	"encoding/json"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/golang/glog"
@@ -69,8 +69,14 @@ func Login(res http.ResponseWriter, req *http.Request) {
 	}
 
 	token, err := db.LoginUser(req.Context(), l)
+	if err != nil {
+		r.Message = "User not found"
+		res.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
 
-	r.Message = "User Created"
+	r.Message = "Login Successful"
 	r.Data = token
 	res.WriteHeader(http.StatusOK)
 	json.NewEncoder(res).Encode(r)
@@ -90,7 +96,7 @@ func Logout(res http.ResponseWriter, req *http.Request) {
 
 	err = db.Logout(req.Context(), username)
 
-	r.Message = "Logged out"
+	r.Message = "Logged Out"
 	res.WriteHeader(http.StatusOK)
 	json.NewEncoder(res).Encode(r)
 }

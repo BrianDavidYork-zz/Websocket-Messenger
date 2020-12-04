@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"github.com/golang/glog"
 	"net/http"
+	"time"
 )
 
 type Response struct {
@@ -41,6 +42,7 @@ func Create(res http.ResponseWriter, req *http.Request) {
 
 	c := db.Conversation{}
 	c.Members = append(c.Members, username, u.Recipient)
+	c.Created = time.Now().Unix()
 	chatId, err := c.Create(req.Context(), username, u.Recipient)
 	if err != nil {
 		r.Message = "Error"
@@ -57,7 +59,6 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(res).Encode(r)
 }
 
-/*
 func GetAllConversations(res http.ResponseWriter, req *http.Request) {
 	r := Response{}
 
@@ -85,4 +86,3 @@ func GetAllConversations(res http.ResponseWriter, req *http.Request) {
 	res.WriteHeader(http.StatusOK)
 	json.NewEncoder(res).Encode(r)
 }
-*/

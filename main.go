@@ -36,7 +36,7 @@ func main() {
 
 	// conversation
 	router.HandleFunc("/conversation", conversation.Create).Methods("POST")
-	//router.HandleFunc("/conversation", conversation.GetAllConversations).Methods("GET")
+	router.HandleFunc("/conversation", conversation.GetAllConversations).Methods("GET")
 
 	// message
 	//router.HandleFunc("/message", message.Create).Methods("POST")

@@ -62,11 +62,36 @@ func Edit(res http.ResponseWriter, req *http.Request) {
 	r := Response{}
 	e := EditMessage{}
 
-	_, err := user.JwtAuthorize(req)
+	username, err := user.JwtAuthorize(req)
 	if err != nil {
 		glog.Info(err)
 		r.Message = "Error"
 		res.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	messageId, err := primitive.ObjectIDFromHex(e.MessageId)
+	if err != nil {
+		r.Message = "Invalid Message Id"
+		res.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	// get message by Id
+	msg, err := db.GetMessageById(req.Context(), messageId)
+	if err != nil {
+		r.Message = "Error"
+		res.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	// compare username and message.Sender
+	if msg.Sender != username {
+		r.Message = "Not Authorized to Edit Message"
+		res.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(res).Encode(r)
 		return
 	}
@@ -79,15 +104,7 @@ func Edit(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	chatId, err := primitive.ObjectIDFromHex(e.MessageId)
-	if err != nil {
-		r.Message = "Invalid Chat Id"
-		res.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(res).Encode(r)
-		return
-	}
-
-	err = db.EditMessage(req.Context(), chatId, e.Message)
+	err = db.EditMessage(req.Context(), messageId, e.Message)
 	if err != nil {
 		r.Message = "Error Editing Message"
 		res.WriteHeader(http.StatusInternalServerError)

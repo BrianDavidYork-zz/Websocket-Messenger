@@ -28,6 +28,15 @@ func (msg *Message) Create(context context.Context) (mid primitive.ObjectID, err
 	return
 }
 
+func GetMessageById(context context.Context, messageId primitive.ObjectID) (msg Message, err error) {
+	err = db.Collection("messages").FindOne(context, bson.M{"_id": messageId}).Decode(&msg)
+	if err != nil {
+		glog.Error(err)
+		return
+	}
+	return
+}
+
 func EditMessage(context context.Context, messageId primitive.ObjectID, msg string) (err error) {
 	_, err = db.Collection("messages").UpdateOne(context, bson.M{"_id": messageId}, bson.M{"$set": bson.M{"message": msg, "state": 1}})
 	if err != nil {

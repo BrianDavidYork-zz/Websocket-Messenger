@@ -45,3 +45,12 @@ func EditMessage(context context.Context, messageId primitive.ObjectID, msg stri
 	}
 	return
 }
+
+func DeleteMessage(context context.Context, messageId primitive.ObjectID) (err error) {
+	_, err = db.Collection("messages").UpdateOne(context, bson.M{"_id": messageId}, bson.M{"$set": bson.M{"state": 2}})
+	if err != nil {
+		glog.Error(err)
+		return
+	}
+	return
+}

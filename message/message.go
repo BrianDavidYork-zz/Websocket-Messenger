@@ -71,6 +71,14 @@ func Edit(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	err = json.NewDecoder(req.Body).Decode(&e)
+	if err != nil {
+		r.Message = "Error"
+		res.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
 	messageId, err := primitive.ObjectIDFromHex(e.MessageId)
 	if err != nil {
 		r.Message = "Invalid Message Id"
@@ -96,14 +104,6 @@ func Edit(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	err = json.NewDecoder(req.Body).Decode(&e)
-	if err != nil {
-		r.Message = "Error"
-		res.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(res).Encode(r)
-		return
-	}
-
 	err = db.EditMessage(req.Context(), messageId, e.Message)
 	if err != nil {
 		r.Message = "Error Editing Message"
@@ -115,6 +115,67 @@ func Edit(res http.ResponseWriter, req *http.Request) {
 	// send ws notification to other member of conv
 
 	r.Message = "Message Edited"
+	res.WriteHeader(http.StatusOK)
+	json.NewEncoder(res).Encode(r)
+}
+
+func Delete(res http.ResponseWriter, req *http.Request) {
+	r := Response{}
+
+	username, err := user.JwtAuthorize(req)
+	if err != nil {
+		glog.Info(err)
+		r.Message = "Error"
+		res.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	// get id from route param
+	msgId, ok := req.URL.Query()["id"]
+	if !ok {
+		r.Message = "ID Parameter Required"
+		res.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	messageId, err := primitive.ObjectIDFromHex(msgId[0])
+	if err != nil {
+		r.Message = "Invalid Message Id"
+		res.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	// get message by Id
+	msg, err := db.GetMessageById(req.Context(), messageId)
+	if err != nil {
+		r.Message = "Error"
+		res.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	// compare username and message.Sender
+	if msg.Sender != username {
+		r.Message = "Not Authorized to Delete Message"
+		res.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	err = db.DeleteMessage(req.Context(), messageId)
+	if err != nil {
+		r.Message = "Error Deleting Message"
+		res.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	// send ws notification to other member of conv
+
+	r.Message = "Message Deleted"
 	res.WriteHeader(http.StatusOK)
 	json.NewEncoder(res).Encode(r)
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"WebsocketMessenger/conversation"
 	"WebsocketMessenger/db"
+	"WebsocketMessenger/message"
 	"WebsocketMessenger/user"
 	"WebsocketMessenger/websocket"
 	"flag"
@@ -39,8 +40,8 @@ func main() {
 	router.HandleFunc("/conversation", conversation.GetAllConversations).Methods("GET")
 
 	// message
-	//router.HandleFunc("/message", message.Create).Methods("POST")
-	//router.HandleFunc("/message", message.Edit).Methods("PUT")
+	router.HandleFunc("/message", message.Create).Methods("POST")
+	router.HandleFunc("/message", message.Edit).Methods("PUT")
 	//router.HandleFunc("/message/{id}", message.Delete).Methods("DELETE")
 	//router.HandleFunc("/message", message.GetMessages).Methods("GET")
 
@@ -59,4 +60,6 @@ func main() {
 
 // jwt authorization - turn into middleware
 // env variables - jwt secret, mongo url, api port
-// log errors
+// pagination for messages GET
+// multi user conversations
+// check all error messages being returned

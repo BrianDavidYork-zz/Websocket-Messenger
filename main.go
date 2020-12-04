@@ -1,9 +1,10 @@
 package main
 
 import (
-	"./db"
-	"./user"
-	"./websocket"
+	"WebsocketMessenger/conversation"
+	"WebsocketMessenger/db"
+	"WebsocketMessenger/user"
+	"WebsocketMessenger/websocket"
 	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -28,10 +29,10 @@ func main() {
 	router.HandleFunc("/websocket", websocket.Create).Methods("GET")
 
 	// conversation
-	//router.HandleFunc("/conversation", conversation.Create).Methods("POST")
-	//router.HandleFunc("/conversation", conversation.GetAllConversations).Methods("GET")
+	router.HandleFunc("/conversation", conversation.Create).Methods("POST")
+	router.HandleFunc("/conversation", conversation.GetAllConversations).Methods("GET")
 
-	// messages
+	// message
 	//router.HandleFunc("/message", message.Create).Methods("POST")
 	//router.HandleFunc("/message", message.Edit).Methods("PUT")
 	//router.HandleFunc("/message/{id}", message.Delete).Methods("DELETE")

@@ -58,6 +58,7 @@ func main() {
 
 // TODO
 
+// get websocket notifications working
 // jwt authorization - turn into middleware
 // env variables - jwt secret, mongo url, api port
 // pagination for messages GET

@@ -2,20 +2,14 @@ package user
 
 import (
 	"WebsocketMessenger/db"
+	"WebsocketMessenger/response"
 	"encoding/json"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
-	"strings"
 	"time"
 )
-
-type Response struct {
-	Message string
-	Data    interface{}
-}
 
 func Create(res http.ResponseWriter, req *http.Request) {
 	type CreateUser struct {
@@ -23,7 +17,7 @@ func Create(res http.ResponseWriter, req *http.Request) {
 		Password string
 	}
 
-	r := Response{}
+	r := response.Response{}
 	u := CreateUser{}
 
 	err := json.NewDecoder(req.Body).Decode(&u)
@@ -58,7 +52,7 @@ func Create(res http.ResponseWriter, req *http.Request) {
 
 func Login(res http.ResponseWriter, req *http.Request) {
 	l := db.Login{}
-	r := Response{}
+	r := response.Response{}
 
 	err := json.NewDecoder(req.Body).Decode(&l)
 	if err != nil {
@@ -83,18 +77,12 @@ func Login(res http.ResponseWriter, req *http.Request) {
 }
 
 func Logout(res http.ResponseWriter, req *http.Request) {
-	r := Response{}
+	r := response.Response{}
 
-	username, err := JwtAuthorize(req)
-	if err != nil {
-		glog.Info(err)
-		r.Message = "Error"
-		res.WriteHeader(http.StatusForbidden)
-		json.NewEncoder(res).Encode(r)
-		return
-	}
+	u := req.Context().Value("username")
+	username := u.(string)
 
-	err = db.Logout(req.Context(), username)
+	_ = db.Logout(req.Context(), username)
 
 	r.Message = "Logged Out"
 	res.WriteHeader(http.StatusOK)
@@ -102,19 +90,9 @@ func Logout(res http.ResponseWriter, req *http.Request) {
 }
 
 func Profile(res http.ResponseWriter, req *http.Request) {
-	r := Response{}
+	r := response.Response{}
 
-	username, err := JwtAuthorize(req)
-	if err != nil {
-		glog.Info(err)
-		r.Message = "Error"
-		res.WriteHeader(http.StatusForbidden)
-		json.NewEncoder(res).Encode(r)
-		return
-	}
-	glog.Info(username)
 	u := mux.Vars(req)
-	glog.Info(u["username"])
 
 	profile, err := db.GetProfile(req.Context(), u["username"])
 	if err != nil {
@@ -129,29 +107,4 @@ func Profile(res http.ResponseWriter, req *http.Request) {
 	r.Data = profile
 	res.WriteHeader(http.StatusOK)
 	json.NewEncoder(res).Encode(r)
-}
-
-func JwtAuthorize(req *http.Request) (username string, err error) {
-	var bearerToken string
-	tok := req.Header.Get("Authorization")
-	strArr := strings.Split(tok, " ")
-	if len(strArr) == 2 {
-		bearerToken = strArr[1]
-	}
-	token, err := jwt.Parse(bearerToken, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			glog.Error(err)
-		}
-		return []byte("WaterCooler123"), nil
-	})
-	if err != nil {
-		glog.Error(err)
-	}
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		glog.Error(err)
-		return
-	}
-	username = claims["username"].(string)
-	return
 }

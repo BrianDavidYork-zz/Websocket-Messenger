@@ -2,33 +2,21 @@ package message
 
 import (
 	"WebsocketMessenger/db"
-	"WebsocketMessenger/user"
+	"WebsocketMessenger/response"
 	"encoding/json"
-	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 )
 
-type Response struct {
-	Message string
-	Data    interface{}
-}
-
 func Create(res http.ResponseWriter, req *http.Request) {
-	r := Response{}
+	r := response.Response{}
 	m := db.Message{}
 
-	username, err := user.JwtAuthorize(req)
-	if err != nil {
-		glog.Info(err)
-		r.Message = "Error"
-		res.WriteHeader(http.StatusForbidden)
-		json.NewEncoder(res).Encode(r)
-		return
-	}
+	u := req.Context().Value("username")
+	username := u.(string)
 
-	err = json.NewDecoder(req.Body).Decode(&m)
+	err := json.NewDecoder(req.Body).Decode(&m)
 	if err != nil {
 		r.Message = "Error"
 		res.WriteHeader(http.StatusBadRequest)
@@ -60,19 +48,13 @@ func Edit(res http.ResponseWriter, req *http.Request) {
 		Message   string
 	}
 
-	r := Response{}
+	r := response.Response{}
 	e := EditMessage{}
 
-	username, err := user.JwtAuthorize(req)
-	if err != nil {
-		glog.Info(err)
-		r.Message = "Error"
-		res.WriteHeader(http.StatusForbidden)
-		json.NewEncoder(res).Encode(r)
-		return
-	}
+	u := req.Context().Value("username")
+	username := u.(string)
 
-	err = json.NewDecoder(req.Body).Decode(&e)
+	err := json.NewDecoder(req.Body).Decode(&e)
 	if err != nil {
 		r.Message = "Error"
 		res.WriteHeader(http.StatusBadRequest)
@@ -121,18 +103,10 @@ func Edit(res http.ResponseWriter, req *http.Request) {
 }
 
 func Delete(res http.ResponseWriter, req *http.Request) {
-	r := Response{}
+	r := response.Response{}
 
-	username, err := user.JwtAuthorize(req)
-	if err != nil {
-		glog.Info(err)
-		r.Message = "Error"
-		res.WriteHeader(http.StatusForbidden)
-		json.NewEncoder(res).Encode(r)
-		return
-	}
-
-	// get id from route param
+	u := req.Context().Value("username")
+	username := u.(string)
 
 	vars := mux.Vars(req)
 	msgId := vars["id"]
@@ -184,16 +158,10 @@ func Delete(res http.ResponseWriter, req *http.Request) {
 }
 
 func GetMessages(res http.ResponseWriter, req *http.Request) {
-	r := Response{}
+	r := response.Response{}
 
-	username, err := user.JwtAuthorize(req)
-	if err != nil {
-		glog.Info(err)
-		r.Message = "Error"
-		res.WriteHeader(http.StatusForbidden)
-		json.NewEncoder(res).Encode(r)
-		return
-	}
+	u := req.Context().Value("username")
+	username := u.(string)
 
 	// get id from route param
 	vars := mux.Vars(req)

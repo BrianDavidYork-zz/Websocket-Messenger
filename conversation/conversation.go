@@ -2,37 +2,25 @@ package conversation
 
 import (
 	"WebsocketMessenger/db"
-	"WebsocketMessenger/user"
+	"WebsocketMessenger/response"
 	"encoding/json"
-	"github.com/golang/glog"
 	"net/http"
 	"time"
 )
 
-type Response struct {
-	Message string
-	Data    interface{}
-}
-
 func Create(res http.ResponseWriter, req *http.Request) {
-	r := Response{}
+	r := response.Response{}
 
-	username, err := user.JwtAuthorize(req)
-	if err != nil {
-		glog.Info(err)
-		r.Message = "Error"
-		res.WriteHeader(http.StatusForbidden)
-		json.NewEncoder(res).Encode(r)
-		return
-	}
+	u := req.Context().Value("username")
+	username := u.(string)
 
-	type Username struct {
+	type Recipient struct {
 		Recipient string
 	}
 
-	u := Username{}
+	rcp := Recipient{}
 
-	err = json.NewDecoder(req.Body).Decode(&u)
+	err := json.NewDecoder(req.Body).Decode(&rcp)
 	if err != nil {
 		r.Message = "Error"
 		res.WriteHeader(http.StatusBadRequest)
@@ -41,9 +29,9 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	}
 
 	c := db.Conversation{}
-	c.Members = append(c.Members, username, u.Recipient)
+	c.Members = append(c.Members, username, rcp.Recipient)
 	c.Created = time.Now().Unix()
-	chatId, err := c.Create(req.Context(), username, u.Recipient)
+	chatId, err := c.Create(req.Context(), username, rcp.Recipient)
 	if err != nil {
 		r.Message = "Error"
 		res.WriteHeader(http.StatusInternalServerError)
@@ -60,16 +48,10 @@ func Create(res http.ResponseWriter, req *http.Request) {
 }
 
 func GetAllConversations(res http.ResponseWriter, req *http.Request) {
-	r := Response{}
+	r := response.Response{}
 
-	username, err := user.JwtAuthorize(req)
-	if err != nil {
-		glog.Info(err)
-		r.Message = "Error"
-		res.WriteHeader(http.StatusForbidden)
-		json.NewEncoder(res).Encode(r)
-		return
-	}
+	u := req.Context().Value("username")
+	username := u.(string)
 
 	conversations, err := db.GetConversations(req.Context(), username)
 	if err != nil {

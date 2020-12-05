@@ -42,3 +42,12 @@ func GetConversations(context context.Context, username string) (convs []Convers
 		return
 	}
 }
+
+func GetConversationById(context context.Context, convId primitive.ObjectID) (conv Conversation, err error) {
+	err = db.Collection("conversations").FindOne(context, bson.M{"_id": convId}).Decode(&conv)
+	if err != nil {
+		glog.Error(err)
+		return
+	}
+	return
+}

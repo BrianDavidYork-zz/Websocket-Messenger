@@ -42,8 +42,8 @@ func main() {
 	// message
 	router.HandleFunc("/message", message.Create).Methods("POST")
 	router.HandleFunc("/message", message.Edit).Methods("PUT")
-	//router.HandleFunc("/message/{id}", message.Delete).Methods("DELETE")
-	//router.HandleFunc("/message", message.GetMessages).Methods("GET")
+	router.HandleFunc("/message/{id}", message.Delete).Methods("DELETE")
+	router.HandleFunc("/message/{id}", message.GetMessages).Methods("GET")
 
 	// start server
 	glog.Info("Starting messenger api on port 7000")

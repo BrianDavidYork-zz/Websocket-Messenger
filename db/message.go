@@ -5,6 +5,7 @@ import (
 	"github.com/golang/glog"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
 )
 
@@ -35,6 +36,27 @@ func GetMessageById(context context.Context, messageId primitive.ObjectID) (msg 
 		return
 	}
 	return
+}
+
+func GetMessagesByConversation(context context.Context, convId primitive.ObjectID) (msgs []Message, err error) {
+	opts := options.Find()
+	opts.SetSort(bson.D{{"crt", -1}})
+	cursor, err := db.Collection("messages").Find(context,
+		bson.M{
+			"conversationid": convId,
+			"$or":            []bson.M{{"state": 0}, {"state": 1}}},
+		opts)
+	if err != nil {
+		glog.Error(err)
+		return
+	} else {
+		for cursor.Next(context) {
+			var result Message
+			err = cursor.Decode(&result)
+			msgs = append(msgs, result)
+		}
+		return
+	}
 }
 
 func EditMessage(context context.Context, messageId primitive.ObjectID, msg string) (err error) {

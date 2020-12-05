@@ -5,6 +5,7 @@ import (
 	"WebsocketMessenger/user"
 	"encoding/json"
 	"github.com/golang/glog"
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 )
@@ -132,15 +133,17 @@ func Delete(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// get id from route param
-	msgId, ok := req.URL.Query()["id"]
-	if !ok {
+
+	vars := mux.Vars(req)
+	msgId := vars["id"]
+	if msgId == "" {
 		r.Message = "ID Parameter Required"
 		res.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(res).Encode(r)
 		return
 	}
 
-	messageId, err := primitive.ObjectIDFromHex(msgId[0])
+	messageId, err := primitive.ObjectIDFromHex(msgId)
 	if err != nil {
 		r.Message = "Invalid Message Id"
 		res.WriteHeader(http.StatusBadRequest)
@@ -176,6 +179,76 @@ func Delete(res http.ResponseWriter, req *http.Request) {
 	// send ws notification to other member of conv
 
 	r.Message = "Message Deleted"
+	res.WriteHeader(http.StatusOK)
+	json.NewEncoder(res).Encode(r)
+}
+
+func GetMessages(res http.ResponseWriter, req *http.Request) {
+	r := Response{}
+
+	username, err := user.JwtAuthorize(req)
+	if err != nil {
+		glog.Info(err)
+		r.Message = "Error"
+		res.WriteHeader(http.StatusForbidden)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	// get id from route param
+	vars := mux.Vars(req)
+	convId := vars["id"]
+	if convId == "" {
+		r.Message = "ID Parameter Required"
+		res.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	conversationId, err := primitive.ObjectIDFromHex(convId)
+	if err != nil {
+		r.Message = "Invalid Message Id"
+		res.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	// get conversation by Id
+	conversation, err := db.GetConversationById(req.Context(), conversationId)
+	if err != nil {
+		r.Message = "Error Retrieving Conversation"
+		res.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	// make sure requesting user is a conversation member
+	var permitted bool
+	permitted = false
+
+	for _, v := range conversation.Members {
+		if v == username {
+			permitted = true
+		}
+	}
+
+	if !permitted {
+		r.Message = "Not Authorized to Retrieve Messages"
+		res.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	messages, err := db.GetMessagesByConversation(req.Context(), conversationId)
+	if err != nil {
+		r.Message = "Error Retrieving Messages"
+		res.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(res).Encode(r)
+		return
+	}
+
+	r.Message = "Messages Retrieved"
+	r.Data = messages
 	res.WriteHeader(http.StatusOK)
 	json.NewEncoder(res).Encode(r)
 }

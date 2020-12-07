@@ -6,7 +6,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"time"
 )
 
 type Message struct {
@@ -19,7 +18,6 @@ type Message struct {
 }
 
 func (msg *Message) Create(context context.Context) (mid primitive.ObjectID, err error) {
-	msg.Created = time.Now().Unix()
 	result, err := db.Collection("messages").InsertOne(context, msg)
 	if err != nil {
 		glog.Error(err)

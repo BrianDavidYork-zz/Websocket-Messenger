@@ -3,10 +3,12 @@ package message
 import (
 	"WebsocketMessenger/db"
 	"WebsocketMessenger/response"
+	"WebsocketMessenger/websocket"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
+	"time"
 )
 
 func Create(res http.ResponseWriter, req *http.Request) {
@@ -26,6 +28,7 @@ func Create(res http.ResponseWriter, req *http.Request) {
 
 	m.Sender = username
 	m.State = 0
+	m.Created = time.Now().Unix()
 	mid, err := m.Create(req.Context())
 	if err != nil {
 		r.Message = "Error"
@@ -35,6 +38,7 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// send ws notification to other member of conv
+	go websocket.SendWebsocketMessage(m, "New Message")
 
 	r.Message = "Message Created"
 	r.Data = mid
@@ -96,6 +100,7 @@ func Edit(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// send ws notification to other member of conv
+	go websocket.SendWebsocketMessage(msg, "Message Edited")
 
 	r.Message = "Message Edited"
 	res.WriteHeader(http.StatusOK)
@@ -151,6 +156,7 @@ func Delete(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// send ws notification to other member of conv
+	go websocket.SendWebsocketMessage(msg, "Message Deleted")
 
 	r.Message = "Message Deleted"
 	res.WriteHeader(http.StatusOK)

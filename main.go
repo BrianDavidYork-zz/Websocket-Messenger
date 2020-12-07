@@ -31,28 +31,29 @@ func main() {
 	router := mux.NewRouter()
 
 	// API ROUTES
+	api := router.PathPrefix("/").Subrouter()
+
+	// middleware
+	api.Use(jwtMiddleware)
 
 	// user
 	router.HandleFunc("/user", user.Create).Methods("POST")
-	router.HandleFunc("/user/{username}", user.Profile).Methods("GET")
+	api.HandleFunc("/user/{username}", user.Profile).Methods("GET")
 	router.HandleFunc("/user/login", user.Login).Methods("POST")
-	router.HandleFunc("/user/logout", user.Logout).Methods("POST")
-
-	// websocket
-	router.HandleFunc("/websocket", websocket.Create).Methods("GET")
+	api.HandleFunc("/user/logout", user.Logout).Methods("POST")
 
 	// conversation
-	router.HandleFunc("/conversation", conversation.Create).Methods("POST")
-	router.HandleFunc("/conversation", conversation.GetAllConversations).Methods("GET")
+	api.HandleFunc("/conversation", conversation.Create).Methods("POST")
+	api.HandleFunc("/conversation", conversation.GetAllConversations).Methods("GET")
 
 	// message
-	router.HandleFunc("/message", message.Create).Methods("POST")
-	router.HandleFunc("/message", message.Edit).Methods("PUT")
-	router.HandleFunc("/message/{id}", message.Delete).Methods("DELETE")
-	router.HandleFunc("/message/{id}", message.GetMessages).Methods("GET")
+	api.HandleFunc("/message", message.Create).Methods("POST")
+	api.HandleFunc("/message", message.Edit).Methods("PUT")
+	api.HandleFunc("/message/{id}", message.Delete).Methods("DELETE")
+	api.HandleFunc("/message/{id}", message.GetMessages).Methods("GET")
 
-	// middleware
-	router.Use(jwtMiddleware)
+	// websocket (no middleware)
+	router.HandleFunc("/websocket", websocket.Create).Methods("GET")
 
 	// start server
 	glog.Info("Starting messenger api on port 7000")
@@ -65,8 +66,7 @@ func jwtMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
 		// no jwt needed for these routes
 		if req.URL.Path == "/user/login" ||
-			req.URL.Path == "/user" ||
-			req.URL.Path == "websocket" {
+			req.URL.Path == "/user" {
 			next.ServeHTTP(res, req)
 		}
 		var bearerToken string
@@ -108,9 +108,13 @@ func notAuthorized(res http.ResponseWriter) {
 
 // TODO
 
-// get websocket notifications working
-// env variables - jwt secret, mongo url, api port
+// FUTURE IMPROVEMENTS
 // pagination for messages GET
 // multi user conversations
+
+// env variables - jwt secret, mongo url, api port
 // check all error messages being returned
 // add comments
+// finish readme
+
+// websocket - rapid open close bug;

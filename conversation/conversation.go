@@ -39,8 +39,6 @@ func Create(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// send ws notification to recipient
-
 	r.Message = "Conversation Created"
 	r.Data = chatId
 	res.WriteHeader(http.StatusOK)
@@ -60,8 +58,6 @@ func GetAllConversations(res http.ResponseWriter, req *http.Request) {
 		json.NewEncoder(res).Encode(r)
 		return
 	}
-
-	// send ws notification to recipient
 
 	r.Message = "Conversations Retrieved"
 	r.Data = conversations

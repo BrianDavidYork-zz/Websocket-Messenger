@@ -45,8 +45,8 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	token, err := newUser.CreateUser(req.Context())
 
 	r.Message = "User Created"
+	r.Data = token
 	res.WriteHeader(http.StatusOK)
-	res.Header().Set("Authorization", "Bearer"+token)
 	json.NewEncoder(res).Encode(r)
 }
 

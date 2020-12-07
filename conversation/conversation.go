@@ -4,6 +4,7 @@ import (
 	"WebsocketMessenger/db"
 	"WebsocketMessenger/response"
 	"encoding/json"
+	"github.com/golang/glog"
 	"net/http"
 	"time"
 )
@@ -24,7 +25,10 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Error"
 		res.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -35,14 +39,20 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Error"
 		res.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
 	r.Message = "Conversation Created"
 	r.Data = chatId
 	res.WriteHeader(http.StatusOK)
-	json.NewEncoder(res).Encode(r)
+	err = json.NewEncoder(res).Encode(r)
+	if err != nil {
+		glog.Info(err)
+	}
 }
 
 func GetAllConversations(res http.ResponseWriter, req *http.Request) {
@@ -55,12 +65,18 @@ func GetAllConversations(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Error"
 		res.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
 	r.Message = "Conversations Retrieved"
 	r.Data = conversations
 	res.WriteHeader(http.StatusOK)
-	json.NewEncoder(res).Encode(r)
+	err = json.NewEncoder(res).Encode(r)
+	if err != nil {
+		glog.Info(err)
+	}
 }

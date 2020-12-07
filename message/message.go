@@ -5,6 +5,7 @@ import (
 	"WebsocketMessenger/response"
 	"WebsocketMessenger/websocket"
 	"encoding/json"
+	"github.com/golang/glog"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
@@ -22,7 +23,10 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Error"
 		res.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -33,7 +37,10 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Error"
 		res.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -43,7 +50,10 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	r.Message = "Message Created"
 	r.Data = mid
 	res.WriteHeader(http.StatusOK)
-	json.NewEncoder(res).Encode(r)
+	err = json.NewEncoder(res).Encode(r)
+	if err != nil {
+		glog.Info(err)
+	}
 }
 
 func Edit(res http.ResponseWriter, req *http.Request) {
@@ -62,7 +72,10 @@ func Edit(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Error"
 		res.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -70,7 +83,10 @@ func Edit(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Invalid Message Id"
 		res.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -79,7 +95,10 @@ func Edit(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Error"
 		res.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -87,7 +106,10 @@ func Edit(res http.ResponseWriter, req *http.Request) {
 	if msg.Sender != username {
 		r.Message = "Not Authorized to Edit Message"
 		res.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -95,7 +117,10 @@ func Edit(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Error Editing Message"
 		res.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -104,7 +129,10 @@ func Edit(res http.ResponseWriter, req *http.Request) {
 
 	r.Message = "Message Edited"
 	res.WriteHeader(http.StatusOK)
-	json.NewEncoder(res).Encode(r)
+	err = json.NewEncoder(res).Encode(r)
+	if err != nil {
+		glog.Info(err)
+	}
 }
 
 func Delete(res http.ResponseWriter, req *http.Request) {
@@ -118,7 +146,10 @@ func Delete(res http.ResponseWriter, req *http.Request) {
 	if msgId == "" {
 		r.Message = "ID Parameter Required"
 		res.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(res).Encode(r)
+		err := json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -126,7 +157,10 @@ func Delete(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Invalid Message Id"
 		res.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -135,7 +169,10 @@ func Delete(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Error"
 		res.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -143,7 +180,10 @@ func Delete(res http.ResponseWriter, req *http.Request) {
 	if msg.Sender != username {
 		r.Message = "Not Authorized to Delete Message"
 		res.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -151,7 +191,10 @@ func Delete(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Error Deleting Message"
 		res.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -160,7 +203,10 @@ func Delete(res http.ResponseWriter, req *http.Request) {
 
 	r.Message = "Message Deleted"
 	res.WriteHeader(http.StatusOK)
-	json.NewEncoder(res).Encode(r)
+	err = json.NewEncoder(res).Encode(r)
+	if err != nil {
+		glog.Info(err)
+	}
 }
 
 func GetMessages(res http.ResponseWriter, req *http.Request) {
@@ -175,7 +221,10 @@ func GetMessages(res http.ResponseWriter, req *http.Request) {
 	if convId == "" {
 		r.Message = "ID Parameter Required"
 		res.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(res).Encode(r)
+		err := json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -183,7 +232,10 @@ func GetMessages(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Invalid Message Id"
 		res.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -192,7 +244,10 @@ func GetMessages(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Error Retrieving Conversation"
 		res.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -209,7 +264,10 @@ func GetMessages(res http.ResponseWriter, req *http.Request) {
 	if !permitted {
 		r.Message = "Not Authorized to Retrieve Messages"
 		res.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -217,12 +275,18 @@ func GetMessages(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Error Retrieving Messages"
 		res.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
 	r.Message = "Messages Retrieved"
 	r.Data = messages
 	res.WriteHeader(http.StatusOK)
-	json.NewEncoder(res).Encode(r)
+	err = json.NewEncoder(res).Encode(r)
+	if err != nil {
+		glog.Info(err)
+	}
 }

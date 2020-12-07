@@ -23,11 +23,14 @@ import (
 
 func init() {
 	// logging
-	flag.Set("logtostderr", "true")
+	err := flag.Set("logtostderr", "true")
+	if err != nil {
+		panic(err)
+	}
 	flag.Parse()
 
 	// environmental variables
-	err := godotenv.Load()
+	err = godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -41,7 +44,7 @@ func main() {
 	// API ROUTES
 	api := router.PathPrefix("/").Subrouter()
 
-	// middleware
+	// middleware (only applied to api subrouter)
 	api.Use(jwtMiddleware)
 
 	// user
@@ -72,11 +75,6 @@ func main() {
 
 func jwtMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(res http.ResponseWriter, req *http.Request) {
-		// no jwt needed for these routes
-		if req.URL.Path == "/user/login" ||
-			req.URL.Path == "/user" {
-			next.ServeHTTP(res, req)
-		}
 		var bearerToken string
 		tok := req.Header.Get("Authorization")
 		strArr := strings.Split(tok, " ")
@@ -111,7 +109,10 @@ func notAuthorized(res http.ResponseWriter) {
 	r := response.Response{}
 	r.Message = "Invalid Jwt"
 	r.Data = nil
-	json.NewEncoder(res).Encode(r)
+	err := json.NewEncoder(res).Encode(r)
+	if err != nil {
+		glog.Info(err)
+	}
 }
 
 // TODO
@@ -120,7 +121,7 @@ func notAuthorized(res http.ResponseWriter) {
 // pagination for messages GET
 // multi user conversations
 
-// check all error messages being returned
+// check all error messages and responses for endpoints
 // add comments
 // finish readme
 

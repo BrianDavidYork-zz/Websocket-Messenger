@@ -24,7 +24,10 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Error"
 		res.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -47,7 +50,10 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	r.Message = "User Created"
 	r.Data = token
 	res.WriteHeader(http.StatusOK)
-	json.NewEncoder(res).Encode(r)
+	err = json.NewEncoder(res).Encode(r)
+	if err != nil {
+		glog.Info(err)
+	}
 }
 
 func Login(res http.ResponseWriter, req *http.Request) {
@@ -58,7 +64,10 @@ func Login(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "Error"
 		res.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
@@ -66,14 +75,20 @@ func Login(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		r.Message = "User not found"
 		res.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
 	r.Message = "Login Successful"
 	r.Data = token
 	res.WriteHeader(http.StatusOK)
-	json.NewEncoder(res).Encode(r)
+	err = json.NewEncoder(res).Encode(r)
+	if err != nil {
+		glog.Info(err)
+	}
 }
 
 func Logout(res http.ResponseWriter, req *http.Request) {
@@ -86,7 +101,10 @@ func Logout(res http.ResponseWriter, req *http.Request) {
 
 	r.Message = "Logged Out"
 	res.WriteHeader(http.StatusOK)
-	json.NewEncoder(res).Encode(r)
+	err := json.NewEncoder(res).Encode(r)
+	if err != nil {
+		glog.Info(err)
+	}
 }
 
 func Profile(res http.ResponseWriter, req *http.Request) {
@@ -99,12 +117,18 @@ func Profile(res http.ResponseWriter, req *http.Request) {
 		glog.Info(err)
 		r.Message = "Error"
 		res.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(res).Encode(r)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
 		return
 	}
 
 	r.Message = "Profile Retrieved"
 	r.Data = profile
 	res.WriteHeader(http.StatusOK)
-	json.NewEncoder(res).Encode(r)
+	err = json.NewEncoder(res).Encode(r)
+	if err != nil {
+		glog.Info(err)
+	}
 }

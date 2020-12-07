@@ -14,18 +14,26 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/golang/glog"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
+	"log"
 	"net/http"
+	"os"
 	"strings"
 )
 
 func init() {
+	// logging
 	flag.Set("logtostderr", "true")
 	flag.Parse()
+
+	// environmental variables
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 }
 
 func main() {
-	// consider using env variables
-
 	db.StartMongo()
 
 	router := mux.NewRouter()
@@ -56,8 +64,8 @@ func main() {
 	router.HandleFunc("/websocket", websocket.Create).Methods("GET")
 
 	// start server
-	glog.Info("Starting messenger api on port 7000")
-	if err := http.ListenAndServe(":7000", router); err != nil {
+	glog.Info("Starting messenger api on port ", os.Getenv("PORT"))
+	if err := http.ListenAndServe(":"+os.Getenv("PORT"), router); err != nil {
 		glog.Fatal("ListenAndServe: ", err)
 	}
 }
@@ -82,7 +90,7 @@ func jwtMiddleware(next http.Handler) http.Handler {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, errors.New("invalid jwt")
 			}
-			return []byte("WaterCooler123"), nil
+			return []byte(os.Getenv("JWT_SECRET")), nil
 		})
 		if err != nil {
 			notAuthorized(res)
@@ -112,7 +120,6 @@ func notAuthorized(res http.ResponseWriter) {
 // pagination for messages GET
 // multi user conversations
 
-// env variables - jwt secret, mongo url, api port
 // check all error messages being returned
 // add comments
 // finish readme

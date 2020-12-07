@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 )
@@ -141,7 +142,7 @@ func checkJwt(bearerToken string) (username string, err error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			glog.Error(err)
 		}
-		return []byte("WaterCooler123"), nil
+		return []byte(os.Getenv("JWT_SECRET")), nil
 	})
 	if err != nil {
 		glog.Error(err)

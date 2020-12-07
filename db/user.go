@@ -6,6 +6,7 @@ import (
 	"github.com/golang/glog"
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/crypto/bcrypt"
+	"os"
 	"time"
 )
 
@@ -97,7 +98,7 @@ func generateJwt(u User) (token string, err error) {
 		"exp":      time.Now().Add(time.Hour * 12),
 	}
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	token, err = t.SignedString([]byte("WaterCooler123"))
+	token, err = t.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		glog.Error(err)
 		return

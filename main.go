@@ -63,7 +63,7 @@ func main() {
 	api.HandleFunc("/message/{id}", message.Delete).Methods("DELETE")
 	api.HandleFunc("/message/{id}", message.GetMessages).Methods("GET")
 
-	// websocket (no middleware)
+	// websocket
 	router.HandleFunc("/websocket", websocket.Create).Methods("GET")
 
 	// start server
@@ -120,9 +120,10 @@ func notAuthorized(res http.ResponseWriter) {
 // FUTURE IMPROVEMENTS
 // pagination for messages GET
 // multi user conversations
+// optimize response to response.HttpResponse()
 
-// check all error messages and responses for endpoints
-// add comments
+// Endpoints all working except websocket notifications
+// new message not being set to true/false  (how to update map in mongo?)
 // finish readme
 
 // websocket - rapid open close bug;

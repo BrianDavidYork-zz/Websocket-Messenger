@@ -100,14 +100,29 @@ This cannot be sent with an http request but with a ws request.  If the API is r
   
 When running locally, the API does not accept secure websockets (wss://) only unsecured (ws://).
 
+# Websocket Use
+
 After the websocket is opened you will receive a JSON response:
   {"Message": "Websocket Open"}
   
-After the websocket is opened, the user must authenticate by sending the JWT in the websocket
+After the websocket is opened, the user must authenticate by sending the JWT in the websocket.
+
 After authentication you will receive a JSON response:
   {"Message": "Websocket Authenticated"}
   
 If the websocket is not authenticated, the websocket will immediately close.
+
+This api supports showing users a "{username} is typing..." message when the other user of a conversation is writing a message.
+The typing user sends the following JSON through the websocket:
+  {
+    "User": "{typing user's username}",
+    "Message": "Typing",
+    "ConvId": "{ConversationId}"
+  }
+  
+This same object is then sent to the other member of the conversation through the websocket.
+All of this would normally be handles by the front-end head, and based on the above object,
+a message could be shown letting user1 of a conversation that user2 is typing on a second to second basis.
 
 
 

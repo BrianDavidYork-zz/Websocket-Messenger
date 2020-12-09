@@ -28,6 +28,24 @@ func Create(res http.ResponseWriter, req *http.Request) {
 		glog.Error(err)
 	}
 
+	type OpenMessage struct {
+		Message string
+	}
+	authMsg := OpenMessage{}
+	authMsg.Message = "Websocket Open"
+
+	// turn struct into []byte
+	bytesMess := new(bytes.Buffer)
+	err = json.NewEncoder(bytesMess).Encode(authMsg)
+	if err != nil {
+		glog.Info("Error encoding json")
+	}
+
+	err = wsutil.WriteServerMessage(conn, 1, bytesMess.Bytes())
+	if err != nil {
+		glog.Info("Error writing message")
+	}
+
 	// on connect, client sends jwt to authorize
 	token, _, err := wsutil.ReadClientData(conn)
 	if err != nil {
@@ -47,6 +65,25 @@ func Create(res http.ResponseWriter, req *http.Request) {
 		m.Lock()
 		connectionTable[username] = &conn
 		m.Unlock()
+
+		type AuthMessage struct {
+			Message string
+		}
+		authMsg := AuthMessage{}
+		authMsg.Message = "Websocket Authenticated"
+
+		// turn struct into []byte
+		bytesMess := new(bytes.Buffer)
+		err := json.NewEncoder(bytesMess).Encode(authMsg)
+		if err != nil {
+			glog.Info("Error encoding json")
+		}
+
+		err = wsutil.WriteServerMessage(conn, 1, bytesMess.Bytes())
+		if err != nil {
+			glog.Info("Error writing message")
+		}
+
 		for {
 			msg, _, err := wsutil.ReadClientData(conn)
 
@@ -61,8 +98,6 @@ func Create(res http.ResponseWriter, req *http.Request) {
 					break
 				}
 			} else {
-				// on normal read
-
 				type Typing struct {
 					User    string
 					Message string

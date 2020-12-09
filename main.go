@@ -117,12 +117,6 @@ func notAuthorized(res http.ResponseWriter) {
 
 // TODO
 
-// FUTURE IMPROVEMENTS
-// pagination for messages GET
-// multi user conversations
-// optimize response to response.HttpResponse()
-
 // new message not being set to true/false  (how to update map in mongo?)
-// finish readme
 
 // websocket - rapid open close bug;

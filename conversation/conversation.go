@@ -32,6 +32,16 @@ func Create(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if rcp.Recipient == username {
+		r.Message = "Cannot start a conversation with yourself"
+		res.WriteHeader(http.StatusBadRequest)
+		err = json.NewEncoder(res).Encode(r)
+		if err != nil {
+			glog.Info(err)
+		}
+		return
+	}
+
 	c := db.Conversation{}
 	c.Members = append(c.Members, username, rcp.Recipient)
 	c.Created = time.Now().Unix()

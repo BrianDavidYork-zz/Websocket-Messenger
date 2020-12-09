@@ -55,7 +55,7 @@ func GetConversationById(context context.Context, convId primitive.ObjectID) (co
 // how to set a map value in mongo updateOne?
 
 func MarkConversationUnseen(context context.Context, username string, convId primitive.ObjectID) (err error) {
-	_, err = db.Collection("conversations").UpdateOne(context, bson.M{"_id": convId}, bson.M{"$set": bson.M{"newmessage": true}})
+	_, err = db.Collection("conversations").UpdateOne(context, bson.M{"_id": convId}, bson.M{"$set": bson.M{"$newmessage.username": true}})
 	if err != nil {
 		glog.Error(err)
 		return
@@ -64,7 +64,7 @@ func MarkConversationUnseen(context context.Context, username string, convId pri
 }
 
 func MarkConversationSeen(context context.Context, username string, convId primitive.ObjectID) (err error) {
-	_, err = db.Collection("conversations").UpdateOne(context, bson.M{"_id": convId}, bson.M{"$set": bson.M{`newmessage[${username}]`: false}})
+	_, err = db.Collection("conversations").UpdateOne(context, bson.M{"_id": convId}, bson.M{"$set": bson.M{`$newmessage.username`: false}})
 	if err != nil {
 		glog.Error(err)
 		return

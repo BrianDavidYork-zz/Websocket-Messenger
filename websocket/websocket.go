@@ -111,6 +111,11 @@ func Create(res http.ResponseWriter, req *http.Request) {
 }
 
 func SendWebsocketMessage(message db.Message, messageType string) {
+	type WebsocketMessage struct {
+		Message        string
+		ConversationId string
+	}
+
 	// get conversation
 	conv, err := db.GetConversationById(context.Background(), message.ConversationId)
 	if err != nil {
@@ -127,7 +132,18 @@ func SendWebsocketMessage(message db.Message, messageType string) {
 			conn, ok := connectionTable[v]
 			if ok {
 				c := *conn
-				err = wsutil.WriteServerMessage(c, 1, []byte(messageType+", "+message.ConversationId.Hex()))
+				websocketMess := WebsocketMessage{}
+				websocketMess.Message = messageType
+				websocketMess.ConversationId = message.ConversationId.Hex()
+
+				// turn struct into []byte
+				bytesMess := new(bytes.Buffer)
+				err := json.NewEncoder(bytesMess).Encode(websocketMess)
+				if err != nil {
+					glog.Info("Error encoding json")
+				}
+
+				err = wsutil.WriteServerMessage(c, 1, bytesMess.Bytes())
 				if err != nil {
 					glog.Info("Error sending websocket notification")
 				}

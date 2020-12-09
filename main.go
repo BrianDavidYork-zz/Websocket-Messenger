@@ -122,7 +122,6 @@ func notAuthorized(res http.ResponseWriter) {
 // multi user conversations
 // optimize response to response.HttpResponse()
 
-// Endpoints all working except websocket notifications
 // new message not being set to true/false  (how to update map in mongo?)
 // finish readme
 

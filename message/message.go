@@ -52,7 +52,7 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	// mark new messages for all non-requesting users in conversation
 	for _, v := range conv.Members {
 		if v != username {
-			err = db.MarkConversationUnseen(req.Context(), v, m.ConversationId)
+			// err = db.MarkConversationUnseen(req.Context(), v, m.ConversationId)
 			if err != nil {
 				glog.Info(err)
 			}
@@ -60,7 +60,7 @@ func Create(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// send ws notification to other member of conv
-	go websocket.SendWebsocketMessage(m, "New Message")
+	websocket.SendWebsocketMessage(m, "New Message")
 
 	r.Message = "Message Created"
 	r.Data = mid
@@ -140,7 +140,7 @@ func Edit(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// send ws notification to other member of conv
-	go websocket.SendWebsocketMessage(msg, "Message Edited")
+	websocket.SendWebsocketMessage(msg, "Message Edited")
 
 	r.Message = "Message Edited"
 	res.WriteHeader(http.StatusOK)
@@ -214,7 +214,7 @@ func Delete(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// send ws notification to other member of conv
-	go websocket.SendWebsocketMessage(msg, "Message Deleted")
+	websocket.SendWebsocketMessage(msg, "Message Deleted")
 
 	r.Message = "Message Deleted"
 	res.WriteHeader(http.StatusOK)
@@ -298,10 +298,10 @@ func GetMessages(res http.ResponseWriter, req *http.Request) {
 	}
 
 	// mark conversation as seen for requesting user
-	err = db.MarkConversationSeen(req.Context(), username, conversationId)
-	if err != nil {
-		glog.Info(err)
-	}
+	// err = db.MarkConversationSeen(req.Context(), username, conversationId)
+	// if err != nil {
+	// glog.Info(err)
+	// }
 
 	r.Message = "Messages Retrieved"
 	r.Data = messages

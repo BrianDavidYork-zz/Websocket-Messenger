@@ -1,6 +1,6 @@
 # Websocket-Messenger
 
-Websocket-Messenger is the back-end api for an instant messager/chat feature.  This was an educational project that allowed me to build a small API in Golang and learn about websockets.  Because this is an educational project, a nummber of things could be added to make it more production ready -- the option to send the full message through the websocket, pagination to the messages returned for each conversation, adding multiple users for each conversation as opposed to one-on conversations implemented here, optomizing the HTTP response by creating a custom response struct, conversations could be generated when a message first message is sent between two users not already in a conversation,  etc.
+Websocket-Messenger is the back-end API for an instant messager/chat feature.  This was an educational project that allowed me to build a small API in Golang and learn about websockets.  Because this is an educational project, a nummber of things could be added to make it more production ready -- the option to send the full message through the websocket, pagination to the messages returned for each conversation, adding multiple users for each conversation as opposed to one-on conversations implemented here, optomizing the HTTP response by creating a custom response struct, conversations could be generated when a message first message is sent between two users not already in a conversation,  etc.  The database used in this API is MongoDB.
 
 # API Endpoints
 
